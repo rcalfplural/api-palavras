@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import { getCustomRepository } from "typeorm";
+import { getCustomRepository, Repository } from "typeorm";
 import { Word } from "../entities/Word";
 import { WordRepository } from "../model/WordRepository";
+import Factorial from "../utils/Factorial";
 import IsPalindrome from "../utils/Palindrome";
 
 class WordsController{
     async store(req: Request, res: Response, next: NextFunction){
         try{
-            const { word } = req.body;
+            const { word, use_rate } = req.body;
             const wordRepository = getCustomRepository(WordRepository);
 
             const wordExist: Word | undefined = await wordRepository.findOne({ word });
@@ -15,8 +16,11 @@ class WordsController{
             if(wordExist) throw new Error("Word already asigned");
 
             const isPalindrome = IsPalindrome(word);
+            const length: number = word.length;
+            const possibleAnagrams: number = Factorial(length);
 
-            const schema = wordRepository.create({ is_palindrom: isPalindrome, word });
+
+            const schema = wordRepository.create({ is_palindrom: isPalindrome, word, anagram_number: possibleAnagrams, length, use_rate });
 
             await wordRepository.save(schema);
 
@@ -36,6 +40,50 @@ class WordsController{
         }catch(err){
             next(err);
         }
+    }
+
+    async update(req: Request, res: Response, next: NextFunction){
+        try{
+            const { word } = req.body;
+            const wordRepository: WordRepository = getCustomRepository(WordRepository);
+
+            const wordExist: Word | undefined = await wordRepository.findOne({ word });
+
+            if(!wordExist) throw new Error("This word was not signed.");
+
+            const isPalindrome: boolean = IsPalindrome(word);
+            const length: number = word.length;
+            const possibleAnagrams: number = Factorial(length);
+
+            wordExist.anagram_number = possibleAnagrams;
+            wordExist.is_palindrom = isPalindrome;
+            wordExist.length = length;
+            wordExist.use_rate = 0;
+
+            await wordRepository.save(wordExist);
+
+            return res.status(201).json({ new_word: wordExist });
+        }catch(err){
+            next(err);
+        }
+
+    }
+    async remove(req: Request, res: Response, next: NextFunction){
+        try{
+            const { word } = req.params;
+            const wordRepository: WordRepository = getCustomRepository(WordRepository);
+
+            const wordExist: Word | undefined = await wordRepository.findOne({ word });
+
+            if(!wordExist) throw new Error("This word was not signed.");
+
+            const removed = await wordRepository.delete(wordExist.id);
+
+            return res.status(201).json({ removed: removed });
+        }catch(err){
+            next(err);
+        }
+
     }
 }
 

@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from "typeorm";
 import { v4 } from "uuid";
 
 @Entity("words")
@@ -17,6 +17,19 @@ class Word {
 
     @UpdateDateColumn()
     updated_at: Date;
+
+    @Column()
+    use_rate: number;
+
+    @Column()
+    anagram_number: number;
+
+    @Column()
+    length: number;
+
+    @ManyToMany(()=>Word)
+    @JoinTable()
+    anagram_of: Word[]
 
     constructor(){
         if(!this.id){
