@@ -14,7 +14,7 @@ export class CreatingWordsTable1643640169051 implements MigrationInterface {
                 {
                     name: "word",
                     type: "varchar",
-                    isUnique: true
+                    isUnique: false
                 },
                 {
                     name: "is_palindrom",

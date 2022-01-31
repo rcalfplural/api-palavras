@@ -23,7 +23,7 @@ class WordsController{
             const { word, use_rate, definition, wordClass } = req.body;
             const wordRepository = getCustomRepository(WordRepository);
 
-            const wordExist: Word | undefined = await wordRepository.findOne({ word });
+            const wordExist: Word | undefined = await wordRepository.findOne({ word, word_class: wordClass });
 
             if(wordExist) throw new Error("Word already asigned");
 
@@ -63,7 +63,7 @@ class WordsController{
             const { word } = req.params;
             const wordRepository = getCustomRepository(WordRepository);
 
-            const theWord = await wordRepository.findOne({ word });
+            const theWord = await wordRepository.find({where: {word}});
 
             if(!theWord) throw new Error("Word not found. Probably not signed on db.");
 
@@ -78,7 +78,7 @@ class WordsController{
             const { word, use_rate, definition, wordClass } = req.body;
             const wordRepository: WordRepository = getCustomRepository(WordRepository);
 
-            const wordExist: Word | undefined = await wordRepository.findOne({ word });
+            const wordExist: Word | undefined = await wordRepository.findOne({ word, word_class: wordClass });
 
             if(!wordExist) throw new Error("This word was not signed.");
             if(wordClass && !WordsController.validClasses.includes(String(wordClass).toLowerCase())) throw new Error("Invalid word class.");
