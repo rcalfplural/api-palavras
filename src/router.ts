@@ -13,6 +13,7 @@ router.get("/", (req: Request, res: Response, next: NextFunction)=>{
 });
 
 router.get("/words", wordsController.index);
+router.get("/words/:word", wordsController.show);
 
 router.post("/words", wordsController.store);
 

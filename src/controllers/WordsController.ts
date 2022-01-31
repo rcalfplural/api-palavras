@@ -58,6 +58,20 @@ class WordsController{
             next(err);
         }
     }
+    async show(req: Request, res: Response, next: NextFunction){
+        try{
+            const { word } = req.params;
+            const wordRepository = getCustomRepository(WordRepository);
+
+            const theWord = await wordRepository.findOne({ word });
+
+            if(!theWord) throw new Error("Word not found. Probably not signed on db.");
+
+            return res.status(200).json({ theWord });
+        }catch(err){
+            next(err);
+        }
+    }
 
     async update(req: Request, res: Response, next: NextFunction){
         try{
