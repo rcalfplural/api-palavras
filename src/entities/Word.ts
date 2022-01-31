@@ -29,7 +29,12 @@ class Word {
 
     @ManyToMany(()=>Word)
     @JoinTable()
-    anagram_of: Word[]
+    anagram_of: Word[];
+
+    @Column()
+    definition: string;
+    @Column({ name: "class" })
+    word_class: string;
 
     constructor(){
         if(!this.id){

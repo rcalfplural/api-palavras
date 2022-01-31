@@ -6,21 +6,38 @@ import Factorial from "../utils/Factorial";
 import IsPalindrome from "../utils/Palindrome";
 
 class WordsController{
+    static validClasses: string[] = [
+        "substantivo",
+        "adjetivo",
+        "artigo",
+        "numeral",
+        "pronome",
+        "verbo",
+        "advérbio",
+        "preposição",
+        "conjunção",
+        "interjeição"
+    ];
     async store(req: Request, res: Response, next: NextFunction){
         try{
-            const { word, use_rate } = req.body;
+            const { word, use_rate, definition, wordClass } = req.body;
             const wordRepository = getCustomRepository(WordRepository);
 
             const wordExist: Word | undefined = await wordRepository.findOne({ word });
 
             if(wordExist) throw new Error("Word already asigned");
 
+            if(wordClass && !WordsController.validClasses.includes(String(wordClass).toLowerCase())) throw new Error("Invalid word class.");
+            
             const isPalindrome = IsPalindrome(word);
             const length: number = word.length;
             const possibleAnagrams: number = Factorial(length);
 
+            const rate = (use_rate)?use_rate:0;
+            const def = (definition)?definition:"<definition pending>";
+            const className = (wordClass)?wordClass:"<class pending>";
 
-            const schema = wordRepository.create({ is_palindrom: isPalindrome, word, anagram_number: possibleAnagrams, length, use_rate });
+            const schema = wordRepository.create({ is_palindrom: isPalindrome, word, anagram_number: possibleAnagrams, length, use_rate: rate, definition: def, word_class: className });
 
             await wordRepository.save(schema);
 
@@ -44,12 +61,14 @@ class WordsController{
 
     async update(req: Request, res: Response, next: NextFunction){
         try{
-            const { word } = req.body;
+            const { word, use_rate, definition, wordClass } = req.body;
             const wordRepository: WordRepository = getCustomRepository(WordRepository);
 
             const wordExist: Word | undefined = await wordRepository.findOne({ word });
 
             if(!wordExist) throw new Error("This word was not signed.");
+            if(wordClass && !WordsController.validClasses.includes(String(wordClass).toLowerCase())) throw new Error("Invalid word class.");
+            
 
             const isPalindrome: boolean = IsPalindrome(word);
             const length: number = word.length;
@@ -58,7 +77,9 @@ class WordsController{
             wordExist.anagram_number = possibleAnagrams;
             wordExist.is_palindrom = isPalindrome;
             wordExist.length = length;
-            wordExist.use_rate = 0;
+            wordExist.use_rate = (use_rate)?use_rate:0;
+            wordExist.definition = (definition)?definition:wordExist.definition;
+            wordExist.word_class = (wordClass)?wordClass:wordExist.word_class;
 
             await wordRepository.save(wordExist);
 
