@@ -50,10 +50,21 @@ class WordsController{
     async index(req: Request, res: Response, next: NextFunction){
         try{
             const wordRepository = getCustomRepository(WordRepository);
-        
-            const words = await wordRepository.find();
+            const { page = 1 } = req.query;
 
-            return res.status(200).json({ words });
+            const [words, n] = await wordRepository.findAndCount();
+            // paginations 
+            let thisPage = Number(page);
+            
+            const maxItems = 1;
+            const maxPages = Math.floor(n / maxItems);
+            if(thisPage > maxPages) thisPage = maxPages;
+            if(thisPage < 0) thisPage = 0;
+            const startIndex = (thisPage-1) * maxItems;
+            const endIndex = startIndex + maxItems;
+
+            const data = (n > maxItems)?words.slice(startIndex, endIndex):words;
+            return res.status(200).json({ page: thisPage, total: n, words: data });
         }catch(err){
             next(err);
         }
