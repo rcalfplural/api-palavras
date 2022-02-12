@@ -43,6 +43,35 @@ class UsersController{
             next(err);
         }
     }
+    async update(req: Request, res: Response, next: NextFunction){
+        try{
+            const { user_id } = req;
+            const { username, password } = req.body;
+
+            const usersRepository: UserRepository = getCustomRepository(UserRepository);
+
+            const userExist = await usersRepository.findOne({ id: user_id });
+
+
+            if(userExist.id != req.user_id){
+                throw new Error("Forbidden!");
+            }
+
+            const anotherExist = await usersRepository.findOne({ username });
+            if(anotherExist && anotherExist.id != user_id){   
+                throw new Error("Username already taken.")
+            }
+            userExist.password = (password) ? password : userExist.password;
+            userExist.username = (username) ? username : userExist.username;
+
+            await usersRepository.save(userExist);
+
+            return res.status(200).json(userExist);
+        }catch(err){
+            console.error(err);
+            return next(err);
+        }
+    }
 }
 
 export { UsersController };

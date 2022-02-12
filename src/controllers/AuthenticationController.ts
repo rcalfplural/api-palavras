@@ -14,7 +14,7 @@ class AuthenticationController{
             const userExist: User | undefined = await userRepository.findOne({ username });
 
             if(!userExist) throw new Error("Authentication failed. Check your credentials.");
-
+            console.log(password, userExist.password);
             if(!await compare(password, userExist.password)) throw new Error("Authentication failed. Check your credentials.");
 
             const token = sign({
@@ -31,6 +31,7 @@ class AuthenticationController{
                 message: "OK"
             });
         }catch(err){
+            console.error(err);
             next(err);
         }
     }
