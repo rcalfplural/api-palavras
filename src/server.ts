@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
+import { config } from "dotenv";
 import cors from "cors";
 
 import router from "./router";
@@ -6,9 +7,11 @@ import router from "./router";
 import "./database";
 
 const app = express();
+config();
 
 app.use(cors({ origin: "https://cavalo.melitoskk.repl.co" }));
 app.use(express.json());
+
 app.use(router);
 app.use((error: Error, req: Request, res: Response, next: NextFunction)=>{
     if(error instanceof Error){
