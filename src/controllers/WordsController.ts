@@ -56,7 +56,7 @@ class WordsController{
             // paginations 
             let thisPage = Number(page);
             
-            const maxItems = 1;
+            const maxItems = 5;
             const maxPages = Math.floor(n / maxItems);
             if(thisPage > maxPages) thisPage = maxPages;
             if(thisPage < 0) thisPage = 0;
@@ -119,7 +119,7 @@ class WordsController{
             const { word } = req.params;
             const wordRepository: WordRepository = getCustomRepository(WordRepository);
 
-            const wordExist: Word | undefined = await wordRepository.findOne({ word });
+            const wordExist: Word | undefined = await wordRepository.findOne({ id: word });
 
             if(!wordExist) throw new Error("This word was not signed.");
 
