@@ -12,8 +12,9 @@ class AuthenticationController{
             const { username, password } = req.body;
             const userRepository: UserRepository = getCustomRepository(UserRepository);
             const userExist: User | undefined = await userRepository.findOne({ username });
-
-            if(!userExist) throw new Error("Authentication failed. Check your credentials.");
+            console.log(`É o iambu chitao e o chororo ${username} e ${password}`);
+            console.log(req.body.body);
+            if(!userExist) throw new Error("Authentication failed. Check your credentials. (user nao existe)");
             console.log(password, userExist.password);
             if(!await compare(password, userExist.password)) throw new Error("Authentication failed. Check your credentials.");
 
@@ -24,6 +25,8 @@ class AuthenticationController{
                 subject: userExist.id
             });
 
+            
+            res.setHeader('Access-Control-Allow-Credentials','true');
             return res.status(200).cookie("authentication", token, {
                 httpOnly: true,
                 secure: true

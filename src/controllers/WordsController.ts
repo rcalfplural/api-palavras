@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getCustomRepository, Repository } from "typeorm";
+import { FindManyOptions, getCustomRepository, MoreThan, MoreThanOrEqual, Repository } from "typeorm";
 import { Word } from "../entities/Word";
 import { WordRepository } from "../model/WordRepository";
 import Factorial from "../utils/Factorial";
@@ -50,9 +50,15 @@ class WordsController{
     async index(req: Request, res: Response, next: NextFunction){
         try{
             const wordRepository = getCustomRepository(WordRepository);
-            const { page = 1 } = req.query;
-
-            const [words, n] = await wordRepository.findAndCount();
+            const { page = 1, sort = null, min_rate = null, rate = null, min_anagram = null, anagram = null, min_length = null, length = null } = req.query;
+            const sortOpt = sort as 1 | "ASC" | -1 | "DESC";
+            // const opt = sort ? { order: { use_rate: sortOpt }} : {};
+            const opt: FindManyOptions<Word> = { where: {} };
+            if(rate || min_rate) opt.where["use_rate"] = (min_rate)? MoreThanOrEqual(min_rate):(rate)?Number(rate):{};
+            if(anagram || min_anagram) opt.where["anagram_number"] = (min_anagram)? MoreThanOrEqual(min_anagram):(anagram)? Number(anagram) :{};
+            if(length || min_length) opt.where = { ...<Object>opt.where, length: (min_length)? MoreThanOrEqual(min_length):(length)? Number(length) :{}};
+            console.log(opt);
+            const [words, n] = await wordRepository.findAndCount(opt);
             // paginations 
             let thisPage = Number(page);
             
