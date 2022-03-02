@@ -1,16 +1,12 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { AnagramsController } from "./controllers/AnagramsController";
-import { AuthenticationController } from "./controllers/AuthenticationController";
 import { WordsController } from "./controllers/WordsController";
-import { ensureAdmin } from "./middleware/ensureAdmin";
-import { ensureAuthentication } from "./middleware/ensureAuthentication";
 
 const router = Router();
 
 // controllers
 const wordsController = new WordsController();
 const anagramsController = new AnagramsController();
-const authenticationController = new AuthenticationController();
 
 
 router.get("/", (req: Request, res: Response, next: NextFunction)=>{
