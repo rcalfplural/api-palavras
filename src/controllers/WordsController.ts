@@ -57,7 +57,7 @@ class WordsController{
             if(rate || min_rate) opt.where["use_rate"] = (min_rate)? MoreThanOrEqual(min_rate):(rate)?Number(rate):{};
             if(anagram || min_anagram) opt.where["anagram_number"] = (min_anagram)? MoreThanOrEqual(min_anagram):(anagram)? Number(anagram) :{};
             if(length || min_length) opt.where = { ...<Object>opt.where, length: (min_length)? MoreThanOrEqual(min_length):(length)? Number(length) :{}};
-            console.log(opt);
+            
             const [words, n] = await wordRepository.findAndCount(opt);
             // paginations 
             let thisPage = Number(page);
@@ -89,7 +89,26 @@ class WordsController{
             next(err);
         }
     }
+    async random(req: Request, res: Response, next: NextFunction){
+        try{
+            const wordRepository: WordRepository = getCustomRepository(WordRepository);
+            const { length = 4 } = req.query;
+            const word = await wordRepository.createQueryBuilder()
+            .select("words.word")
+            .from(Word,"words")
+            .where("words.length = :length", { length })
+            .orderBy("RANDOM()")
+            .limit(1)
+            .getOne();
 
+            
+
+            console.log(word);
+            return res.status(200).json({ word });
+        }catch(err){
+            next(err);
+        }
+    }
     async update(req: Request, res: Response, next: NextFunction){
         try{
             const { word, use_rate, definition, wordClass } = req.body;
